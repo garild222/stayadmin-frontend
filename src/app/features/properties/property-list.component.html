@@ -1,0 +1,78 @@
+<section class="page-header">
+  <div>
+    <h1>Szálláshelyek</h1>
+    <p class="muted">Szálláshelyek listázása, szűrése és kezelése</p>
+  </div>
+
+  <a routerLink="/properties/new" class="btn btn-primary">+ Új szálláshely</a>
+</section>
+
+<section class="filters-bar">
+  <div class="filter-item">
+    <label for="searchName">Keresés név alapján</label>
+    <input
+      id="searchName"
+      type="text"
+      placeholder="Szálláshely neve..."
+      [value]="searchName()"
+      (input)="onSearchInput($event)"
+    />
+  </div>
+
+  <div class="filter-item">
+    <label for="categoryFilter">Kategória</label>
+    <select
+      id="categoryFilter"
+      [value]="selectedCategory()"
+      (change)="onCategoryChange($event)"
+    >
+      <option value="">Összes kategória</option>
+      @for (cat of categories; track cat) {
+        <option [value]="cat">{{ cat }}</option>
+      }
+    </select>
+  </div>
+</section>
+
+@if (errorMessage()) {
+  <div class="alert alert-error">{{ errorMessage() }}</div>
+}
+
+@if (loading()) {
+  <div class="info-box">Szálláshelyek betöltése...</div>
+} @else if (properties().length === 0) {
+  <div class="info-box">
+    @if (!searchName().trim() && !selectedCategory()) {
+      Nincs egyetlen szálláshely sem.
+    } @else {
+      Nincs a szűrésnek megfelelő szálláshely.
+    }
+  </div>
+} @else {
+  <div class="property-grid">
+    @for (prop of properties(); track prop.id) {
+      <article class="property-card">
+        <img
+          [src]="prop.imageUrl"
+          [alt]="prop.name"
+          class="property-image"
+          (error)="onImageError($event)"
+        />
+        <div class="property-body">
+          <span class="badge">{{ prop.category }}</span>
+          <h3>{{ prop.name }}</h3>
+          <p class="location">{{ prop.location }}</p>
+
+          <div class="card-actions">
+            <a [routerLink]="['/properties', prop.id, 'edit']" class="btn btn-secondary">
+              Szerkesztés
+            </a>
+            <button type="button" class="btn btn-danger" (click)="onDelete(prop)">
+              Törlés
+            </button>
+          </div>
+        </div>
+      </article>
+    }
+  </div>
+}

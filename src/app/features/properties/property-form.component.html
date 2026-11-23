@@ -1,0 +1,145 @@
+<section class="page-header">
+  <div>
+    <h1>{{ isEditMode() ? 'Szálláshely szerkesztése' : 'Új szálláshely létrehozása' }}</h1>
+    <p class="muted">A *-gal jelölt mezők kitöltése kötelező</p>
+  </div>
+  <a routerLink="/properties" class="btn btn-secondary">Vissza a listához</a>
+</section>
+
+@if (errorMessage()) {
+  <div class="alert alert-error">{{ errorMessage() }}</div>
+}
+
+@if (loadingData()) {
+  <div class="info-box">Szálláshely adatainak betöltése...</div>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-layout" novalidate>
+    <div class="form-main">
+      <div class="form-group">
+        <label for="name">Név *</label>
+        <input id="name" type="text" formControlName="name" />
+        @if (form.controls.name.touched && form.controls.name.hasError('required')) {
+          <small class="field-error">A név megadása kötelező.</small>
+        }
+      </div>
+
+      <div class="two-col">
+        <div class="form-group">
+          <label for="location">Város *</label>
+          <input id="location" type="text" formControlName="location" />
+          @if (form.controls.location.touched && form.controls.location.hasError('required')) {
+            <small class="field-error">A város megadása kötelező.</small>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="category">Kategória *</label>
+          <select id="category" formControlName="category">
+            @for (cat of categories; track cat) {
+              <option [value]="cat">{{ cat }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="address">Cím *</label>
+        <input id="address" type="text" formControlName="address" />
+        @if (form.controls.address.touched && form.controls.address.hasError('required')) {
+          <small class="field-error">A cím megadása kötelező.</small>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="description">Leírás</label>
+        <textarea id="description" rows="4" formControlName="description"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="imageUrl">Kép URL</label>
+        <input
+          id="imageUrl"
+          type="text"
+          formControlName="imageUrl"
+          placeholder="https://..."
+        />
+      </div>
+
+      <fieldset formGroupName="roomPrices" class="prices-box">
+        <legend>Szobaárak / éjszaka (minimum 0)</legend>
+
+        <div class="three-col">
+          <div class="form-group">
+            <label for="stdPrice">Standard szoba (2 férőhely) *</label>
+            <input
+              id="stdPrice"
+              type="number"
+              min="0"
+              formControlName="Standard"
+              (keydown)="preventNegativeKey($event)"
+            />
+            @if (
+              form.controls.roomPrices.controls.Standard.touched &&
+              form.controls.roomPrices.controls.Standard.invalid
+            ) {
+              <small class="field-error">Legalább 0-ás számot adj meg.</small>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="supPrice">Superior szoba (3 férőhely) *</label>
+            <input
+              id="supPrice"
+              type="number"
+              min="0"
+              formControlName="Superior"
+              (keydown)="preventNegativeKey($event)"
+            />
+            @if (
+              form.controls.roomPrices.controls.Superior.touched &&
+              form.controls.roomPrices.controls.Superior.invalid
+            ) {
+              <small class="field-error">Legalább 0-ás számot adj meg.</small>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="famPrice">Családi szoba (4 férőhely) *</label>
+            <input
+              id="famPrice"
+              type="number"
+              min="0"
+              formControlName="Family"
+              (keydown)="preventNegativeKey($event)"
+            />
+            @if (
+              form.controls.roomPrices.controls.Family.touched &&
+              form.controls.roomPrices.controls.Family.invalid
+            ) {
+              <small class="field-error">Legalább 0-ás számot adj meg.</small>
+            }
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="submitting()">
+          {{ submitting() ? 'Mentés...' : isEditMode() ? 'Módosítások mentése' : 'Létrehozás' }}
+        </button>
+      </div>
+    </div>
+
+    <aside class="preview-card">
+      <h3>Kép előnézet</h3>
+      @if (form.controls.imageUrl.value.trim()) {
+        <img
+          [src]="form.controls.imageUrl.value.trim()"
+          alt="Szálláshely előnézet"
+          (error)="onPreviewError($event)"
+        />
+      } @else {
+        <div class="preview-placeholder">Adj meg egy kép URL-t az előnézethez.</div>
+      }
+    </aside>
+  </form>
+}

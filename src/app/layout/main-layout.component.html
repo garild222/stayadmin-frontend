@@ -1,0 +1,20 @@
+<div class="app-shell">
+  <header class="topbar">
+    <div class="topbar-left">
+      <a routerLink="/overview" class="brand">StayAdmin</a>
+      <nav class="nav-links" aria-label="Fő navigáció">
+        <a routerLink="/overview" routerLinkActive="active">Áttekintés</a>
+        <a routerLink="/properties" routerLinkActive="active">Szálláshelyek</a>
+        <a routerLink="/bookings" routerLinkActive="active">Foglalások</a>
+      </nav>
+    </div>
+
+    <div class="topbar-right">
+      <button type="button" class="btn-logout" (click)="onLogout()">Kijelentkezés</button>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <router-outlet />
+  </main>
+</div>

@@ -1,0 +1,104 @@
+<section class="page-header">
+  <div>
+    <h1>Áttekintés</h1>
+    <p class="muted">Napi statisztikák, legutóbbi foglalások és közelgő érkezések</p>
+  </div>
+
+  @if (properties().length > 0) {
+    <div class="selector-box">
+      <label for="overviewPropertySelect">Szálláshely:</label>
+      <select
+        id="overviewPropertySelect"
+        [value]="selectedPropertyId()"
+        (change)="onPropertyChange($event)"
+      >
+        @for (prop of properties(); track prop.id) {
+          <option [value]="prop.id">{{ prop.name }} ({{ prop.location }})</option>
+        }
+      </select>
+    </div>
+  }
+</section>
+
+@if (errorMessage()) {
+  <div class="alert alert-error">{{ errorMessage() }}</div>
+}
+
+@if (loadingProperties() || loadingOverview()) {
+  <div class="info-box">Adatok betöltése...</div>
+} @else if (properties().length === 0) {
+  <div class="info-box">Nincs egyetlen szálláshely sem.</div>
+} @else if (overview(); as data) {
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-label">Mai foglalások</span>
+      <strong class="stat-value">{{ data.today.booked }}</strong>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Mai érkezések</span>
+      <strong class="stat-value">{{ data.today.checkIns }}</strong>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Mai távozások</span>
+      <strong class="stat-value">{{ data.today.checkOuts }}</strong>
+    </div>
+  </div>
+
+  <div class="two-col-grid">
+    <section class="panel">
+      <h2>Legutóbbi foglalások (max. 4)</h2>
+      @if (data.recentBookings.length === 0) {
+        <p class="muted">Nincs megjeleníthető legutóbbi foglalás.</p>
+      } @else {
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Azonosító</th>
+                <th>Vendég neve</th>
+                <th>Szálláshely neve</th>
+                <th>Érkezés</th>
+                <th>Távozás</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (b of data.recentBookings.slice(0, 4); track b.id) {
+                <tr>
+                  <td>{{ b.id }}</td>
+                  <td>{{ b.guestName }}</td>
+                  <td>{{ b.propertyName }}</td>
+                  <td>{{ b.start }}</td>
+                  <td>{{ b.end }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    <section class="panel">
+      <h2>Közelgő érkezések (2 napon belül)</h2>
+      @if (data.upcomingCheckIns.length === 0) {
+        <p class="muted">Nincs közelgő érkezés a következő 2 napban.</p>
+      } @else {
+        <div class="upcoming-list">
+          @for (item of data.upcomingCheckIns; track $index) {
+            <div class="upcoming-item">
+              <img
+                [src]="item.imageUrl"
+                [alt]="item.propertyName"
+                (error)="onImageError($event)"
+              />
+              <div class="upcoming-details">
+                <strong>{{ item.guestName }}</strong>
+                <span>Szálláshely: {{ item.propertyName }}</span>
+                <span>Érkezés: {{ item.date }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </section>
+  </div>
+}
